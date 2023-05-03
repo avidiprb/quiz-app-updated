@@ -1,0 +1,121 @@
+import React, { useState } from "react";
+import { View, Text, StyleSheet, TextInput, FlatList } from "react-native";
+
+export default function App() {
+  const quiz = [
+    {
+      prompt: "React is framework based on which language",
+      type: "multiple-choice",
+      choices: [
+        { text: "C++", id: 1 },
+        { text: "Agile", id: 2 },
+        { text: "Java", id: 3 },
+        { text: "JavaScript++", id: 4 },
+        { text: "None of these", id: 5 },
+      ],
+      correct: "5",
+    },
+    {
+      prompt: "Which languages below support array",
+      type: "multiple-answer",
+      choices: [
+        { text: "Python", id: 1 },
+        { text: "Agile", id: 2 },
+        { text: "Tesla", id: 3 },
+        { text: "Javascript", id: 4 },
+      ],
+      correct: "1,4",
+    },
+    {
+      prompt: "React is the only JavaScript framework available",
+      type: "true-false",
+      choices: [
+        { text: "true", id: 1 },
+        { text: "false", id: 2 },
+      ],
+      correct: "2",
+    },
+  ];
+
+  const [activeQuestion, setActiveQuestion] = useState(0);
+  const [finished, setfinished] = useState(false);
+  const [score, setScore] = useState(0);
+  const [selectedOptions, setSelectedOptions] = useState("");
+
+  const onClickNext = () => {
+    // again reset the selectedAnwerIndex, so it won't effect next question
+    let tempvar = selectedOptions;
+    //remove all spaces from tempvar
+    tempvar.replace(/\s/g, "");
+
+    if (tempvar === quiz[activeQuestion].correct) {
+      setScore((prev) => prev + 1);
+    }
+
+    setActiveQuestion((prev) => prev + 1);
+    setfinished(activeQuestion === quiz.length - 1 ? true : false);
+    setSelectedOptions("");
+  };
+
+  const recordResult = (event) => {
+    // again reset the selectedAnwerIndex, so it won't effect next question
+
+    setSelectedOptions(event.target.value);
+    console.log(event.target.value);
+  };
+
+  const Item = ({ text }) => {
+    <View style={styles.container}>
+      <Text>{text}</Text>
+    </View>;
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text>Quiz</Text>
+      <View style={styles.container}>
+        {finished ? (
+            <Text>
+              You scored {score} out of {quiz.length}
+            </Text>
+        ) : (
+            <View>
+                <Text>
+                  Question {activeQuestion + 1} of {quiz.length}. Current score
+                  is {score}.
+                </Text>
+                <Text>
+                  {quiz[activeQuestion].prompt}-----{quiz[activeQuestion].type}
+                </Text>
+              <View style={styles.container}>
+                <FlatList
+                  data={quiz[activeQuestion].choices}
+                  renderItem={({ item }) => <Item text={item.text} />}
+                  keyExtractor={(item) => item.id}
+                />
+              </View>
+              <View>
+                <TextInput
+                  label="Type in the #Answer. If multiple , separate by commas :"
+                  onChangeText={recordResult.bind(this)}
+                />
+              </View>
+
+              <View>
+                <button onClick={onClickNext}>Next</button>
+              </View>
+            </View>
+        )}
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
